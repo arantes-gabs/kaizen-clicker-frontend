@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { formatNumber, formatRate } from '../../utils/format'
@@ -9,7 +10,7 @@ interface GameHeaderProps {
   onTogglePause: () => void
 }
 
-export function GameHeader({
+export const GameHeader = memo(function GameHeader({
   points,
   productionPerSecond,
   isPaused,
@@ -25,7 +26,7 @@ export function GameHeader({
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-[0.65rem] font-black uppercase text-amber-500">
-            Tiny factory shift
+            Turno da mini fábrica
           </p>
           <h1 className="font-display text-2xl font-black leading-none text-slate-950 sm:text-3xl">
             Kaizen Clicker
@@ -33,21 +34,19 @@ export function GameHeader({
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(130px,1fr)_minmax(130px,1fr)_auto] sm:items-center">
-          <motion.div
+          <div
             className="rounded-[1.15rem] border-2 border-emerald-100 bg-gradient-to-b from-white to-emerald-50 px-3 py-1.5 shadow-[inset_0_-3px_0_rgba(52,211,153,0.16)]"
-            animate={{ scale: [1, 1.015, 1] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           >
             <p className="text-[0.68rem] font-black uppercase text-emerald-500">
-              Score
+              Pontos
             </p>
             <p className="text-xl font-black leading-tight text-slate-950" aria-live="polite">
               {formatNumber(points)}
             </p>
-          </motion.div>
+          </div>
           <div className="rounded-[1.15rem] border-2 border-amber-100 bg-gradient-to-b from-white to-amber-50 px-3 py-1.5 shadow-[inset_0_-3px_0_rgba(251,191,36,0.16)]">
             <p className="text-[0.68rem] font-black uppercase text-amber-500">
-              Flow
+              Fluxo
             </p>
             <p className="text-xl font-black leading-tight text-slate-950">
               {formatRate(productionPerSecond)}
@@ -59,10 +58,10 @@ export function GameHeader({
             onClick={onTogglePause}
             aria-pressed={isPaused}
           >
-            {isPaused ? 'Resume' : 'Pause'}
+            {isPaused ? 'Retomar' : 'Pausar'}
           </Button>
         </div>
       </div>
     </motion.header>
   )
-}
+})

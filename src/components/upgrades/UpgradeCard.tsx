@@ -1,15 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getNextUpgradeOutput, getUpgradeCost } from '../../game/formulas/upgrades'
+import {
+  canPurchaseUpgrade,
+  getUpgradeCost,
+} from '../../game/formulas/upgrades'
 import type { UpgradeDefinition } from '../../types/game'
 import { classNames } from '../../utils/classNames'
-import { formatNumber, formatRate } from '../../utils/format'
+import { formatNumber } from '../../utils/format'
 
 interface UpgradeCardProps {
   definition: UpgradeDefinition
   level: number
   points: number
-  onPurchase: () => void
+  onPurchase: (id: UpgradeDefinition['id']) => void
 }
 
 interface BuiltFeedback {
@@ -26,31 +29,33 @@ const accentClasses: Record<UpgradeDefinition['accent'], string> = {
 }
 
 const iconLabels: Record<UpgradeDefinition['id'], string> = {
-  handPress: 'HP',
-  beltTuner: 'BT',
-  kanbanRack: 'KR',
-  qualityLoop: 'QL',
-  microFoundry: 'MF',
-  shiftCrew: 'SC',
+  fiveS: '5S',
+  kanban: 'KB',
+  pokaYoke: 'PY',
+  tpm: 'TP',
+  andon: 'AN',
+  jidoka: 'JI',
+  heijunka: 'HJ',
+  justInTime: 'JIT',
 }
 
 function getRarity(level: number): string {
-  if (level >= 16) {
-    return 'Master'
-  }
-
-  if (level >= 8) {
-    return 'Rare'
+  if (level >= 5) {
+    return 'Mestre'
   }
 
   if (level >= 3) {
-    return 'Fine'
+    return 'Raro'
   }
 
-  return 'Starter'
+  if (level >= 1) {
+    return 'Ajustado'
+  }
+
+  return 'Inicial'
 }
 
-export function UpgradeCard({
+export const UpgradeCard = memo(function UpgradeCard({
   definition,
   level,
   points,
@@ -59,9 +64,9 @@ export function UpgradeCard({
   const [builtFeedbacks, setBuiltFeedbacks] = useState<BuiltFeedback[]>([])
   const feedbackTimersRef = useRef<number[]>([])
   const cost = getUpgradeCost(definition, level)
-  const isAffordable = points >= cost
-  const nextOutput = getNextUpgradeOutput(definition, level)
-  const progress = Math.min(100, level * 12)
+  const isMaxed = level >= definition.maxLevel
+  const isAffordable = canPurchaseUpgrade(definition, level, points)
+  const progress = Math.min(100, (level / definition.maxLevel) * 100)
 
   useEffect(() => {
     return () => {
@@ -94,7 +99,7 @@ export function UpgradeCard({
     }, 850)
     feedbackTimersRef.current.push(timerId)
 
-    onPurchase()
+    onPurchase(definition.id)
   }
 
   return (
@@ -121,19 +126,17 @@ export function UpgradeCard({
             exit={{ opacity: 0, x: feedback.x, y: -42 + feedback.y, scale: 0.8 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
           >
-            BUILT
+            COMPRADO
           </motion.span>
         ))}
       </AnimatePresence>
 
       <div className="grid grid-cols-[40px_minmax(0,1fr)] items-start gap-2">
-        <motion.div
+        <div
           className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border-2 border-white bg-slate-900 font-display text-xs font-black text-white shadow-[0_4px_0_rgba(15,23,42,0.22)]"
-          animate={{ rotate: [0, 2, 0, -2, 0] }}
-          transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
         >
           {iconLabels[definition.id]}
-        </motion.div>
+        </div>
 
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
@@ -148,8 +151,8 @@ export function UpgradeCard({
             {definition.summary}
           </p>
           <div className="mt-1 flex items-center gap-2 text-[0.68rem] font-black uppercase text-slate-500">
-            <span>L{level}</span>
-            <span className="text-emerald-700">+{formatRate(nextOutput)}</span>
+            <span>L{level}/{definition.maxLevel}</span>
+            <span className="text-emerald-700">{definition.effectLabel}</span>
           </div>
         </div>
       </div>
@@ -157,7 +160,7 @@ export function UpgradeCard({
       <div className="mt-2 grid grid-cols-[minmax(0,1fr)_94px] items-end gap-2">
         <div>
           <div className="mb-1 flex items-center justify-between gap-2 text-[0.65rem] font-black uppercase text-slate-400">
-            <span>Progress</span>
+            <span>Progresso</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-2.5 overflow-hidden rounded-full border border-white bg-white/80 shadow-inner">
@@ -185,14 +188,14 @@ export function UpgradeCard({
           transition={{ type: 'spring', stiffness: 520, damping: 24 }}
         >
           <span className="font-display text-lg font-black leading-none">
-            Build
+            {isMaxed ? 'Máx' : 'Comprar'}
           </span>
           <span className="-mt-1 text-[0.7rem] font-black opacity-75">
-            {formatNumber(cost)}
+            {isMaxed ? 'L5' : formatNumber(cost)}
           </span>
         </motion.button>
       </div>
 
     </motion.article>
   )
-}
+})
