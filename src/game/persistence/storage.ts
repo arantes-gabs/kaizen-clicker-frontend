@@ -1,6 +1,7 @@
+import { sanitizeSavedGame } from '../antiCheat/limits'
 import type { PersistedGameState } from '../../types/game'
 
-const STORAGE_KEY = 'kaizen-clicker:save-v1'
+const STORAGE_KEY = 'kaizen-clicker:save-v2'
 
 function canUseStorage(): boolean {
   return typeof window !== 'undefined' && 'localStorage' in window
@@ -18,7 +19,7 @@ export function loadGame(): PersistedGameState | null {
   }
 
   try {
-    return JSON.parse(savedState) as PersistedGameState
+    return sanitizeSavedGame(JSON.parse(savedState) as PersistedGameState)
   } catch {
     return null
   }

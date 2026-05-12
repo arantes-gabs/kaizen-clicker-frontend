@@ -1,21 +1,68 @@
-const MAX_TICK_SECONDS = 5
+import type { FactoryMetrics } from '../../types/game'
+import {
+  clampProductionPerSecond,
+  clampTickSeconds,
+} from '../antiCheat/limits'
 
-export function clampTickDelta(deltaSeconds: number): number {
-  if (!Number.isFinite(deltaSeconds) || deltaSeconds <= 0) {
-    return 0
-  }
-
-  return Math.min(deltaSeconds, MAX_TICK_SECONDS)
+export interface ProductionResult {
+  elapsedSeconds: number
+  producedPieces: number
+  goodPieces: number
+  defectivePieces: number
+  downtimeSeconds: number
+  pointsGained: number
 }
 
 export function resolveProductionTick(
-  points: number,
-  productionPerSecond: number,
+  factory: FactoryMetrics,
   deltaSeconds: number,
-): number {
-  return points + productionPerSecond * clampTickDelta(deltaSeconds)
+): ProductionResult {
+  const elapsedSeconds = clampTickSeconds(deltaSeconds)
+  const producedPerSecond = clampProductionPerSecond(
+    factory.producedPiecesPerSecond,
+  )
+  const producedPieces = producedPerSecond * elapsedSeconds
+  const goodPieces = producedPieces * factory.quality
+  const defectivePieces = producedPieces * factory.defectRate
+
+  return {
+    elapsedSeconds,
+    producedPieces,
+    goodPieces,
+    defectivePieces,
+    downtimeSeconds: elapsedSeconds * factory.downtimeRate,
+    pointsGained: goodPieces,
+  }
 }
 
-export function resolveManualClick(points: number, clickPower: number): number {
-  return points + clickPower
+export function resolveOfflineProduction(
+  factory: FactoryMetrics,
+  elapsedSeconds: number,
+): ProductionResult {
+  const producedPerSecond = clampProductionPerSecond(
+    factory.producedPiecesPerSecond,
+  )
+  const producedPieces = producedPerSecond * elapsedSeconds
+  const goodPieces = producedPieces * factory.quality
+  const defectivePieces = producedPieces * factory.defectRate
+
+  return {
+    elapsedSeconds,
+    producedPieces,
+    goodPieces,
+    defectivePieces,
+    downtimeSeconds: elapsedSeconds * factory.downtimeRate,
+    pointsGained: goodPieces,
+  }
+}
+
+export function resolveManualClick(clickPower: number): ProductionResult {
+  return {
+    elapsedSeconds: 0,
+    producedPieces: clickPower,
+    goodPieces: clickPower,
+    defectivePieces: 0,
+    downtimeSeconds: 0,
+    pointsGained: clickPower,
+  }
 }

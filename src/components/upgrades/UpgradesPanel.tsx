@@ -11,8 +11,8 @@ export function UpgradesPanel() {
   return (
     <Panel
       className="flex h-full min-h-0 flex-col p-3 sm:p-4"
-      eyebrow="Modules"
-      title="Upgrade Shelf"
+      eyebrow="Módulos"
+      title="Melhorias"
     >
       <div className="grid min-h-0 flex-1 auto-rows-max content-start gap-2 overflow-y-auto pr-1">
         {upgradeDefinitions.map((definition) => (
@@ -21,7 +21,7 @@ export function UpgradesPanel() {
             key={definition.id}
             level={upgrades[definition.id].level}
             points={points}
-            onPurchase={() => purchaseUpgrade(definition.id)}
+            onPurchase={purchaseUpgrade}
           />
         ))}
       </div>

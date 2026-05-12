@@ -14,22 +14,22 @@ export function MetricsPanel() {
   const isPaused = useGameStore((state) => state.isPaused)
 
   return (
-    <Panel className="hidden shrink-0 p-3 sm:p-4 lg:block" eyebrow="Notes" title="Tiny Stats">
+    <Panel className="hidden shrink-0 p-3 sm:p-4 lg:block" eyebrow="Notas" title="Status rápidos">
       <div className="grid gap-2">
         <div className="grid grid-cols-2 gap-2">
           <StatWidget
-            label="Rate"
+            label="Ritmo"
             value={formatRate(productionPerSecond)}
             tone="green"
           />
-          <StatWidget label="Tap" value={`+${formatNumber(clickPower)}`} tone="yellow" />
+          <StatWidget label="Clique" value={`+${formatNumber(clickPower)}`} tone="yellow" />
           <StatWidget
-            label="Orders"
+            label="Pedidos"
             value={formatNumber(metrics.ordersCompleted)}
           />
           <StatWidget
             label="Status"
-            value={isPaused ? 'Paused' : 'Running'}
+            value={isPaused ? 'Pausado' : 'Rodando'}
             tone={isPaused ? 'yellow' : 'green'}
           />
         </div>
@@ -37,19 +37,19 @@ export function MetricsPanel() {
         <div className="rounded-[1.2rem] border-2 border-slate-200 bg-white/75 p-2.5">
           <dl className="grid gap-2 text-sm">
             <div className="flex justify-between gap-3">
-              <dt className="font-bold text-slate-400">Lifetime</dt>
+              <dt className="font-bold text-slate-400">Total</dt>
               <dd className="font-black text-slate-800">
                 {formatNumber(metrics.lifetimePoints)}
               </dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt className="font-bold text-slate-400">Clicks</dt>
+              <dt className="font-bold text-slate-400">Cliques</dt>
               <dd className="font-black text-slate-800">
                 {formatNumber(metrics.manualClicks)}
               </dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt className="font-bold text-slate-400">Upgrades</dt>
+              <dt className="font-bold text-slate-400">Melhorias</dt>
               <dd className="font-black text-slate-800">
                 {formatNumber(metrics.totalUpgrades)}
               </dd>
@@ -57,9 +57,9 @@ export function MetricsPanel() {
           </dl>
         </div>
 
-        <ChartPlaceholder title="Production trend" values={productionTrend} />
+        <ChartPlaceholder title="Tendência de produção" values={productionTrend} />
         <div className="hidden 2xl:block">
-          <ChartPlaceholder title="Quality mix" values={qualityMix} />
+          <ChartPlaceholder title="Mix de qualidade" values={qualityMix} />
         </div>
       </div>
     </Panel>

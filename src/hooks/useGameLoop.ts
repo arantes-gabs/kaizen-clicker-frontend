@@ -1,38 +1,31 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../store/useGameStore'
 
-const TICK_INTERVAL_MS = 250
+const TICK_INTERVAL_MS = 500
 
 export function useGameLoop(): void {
   const tick = useGameStore((state) => state.tick)
-  const frameRef = useRef<number | null>(null)
   const previousTimeRef = useRef<number | null>(null)
-  const elapsedRef = useRef(0)
 
   useEffect(() => {
-    function loop(timestamp: number): void {
+    function runTick(): void {
+      const timestamp = performance.now()
+
       if (previousTimeRef.current === null) {
         previousTimeRef.current = timestamp
+        return
       }
 
       const delta = timestamp - previousTimeRef.current
       previousTimeRef.current = timestamp
-      elapsedRef.current += delta
-
-      if (elapsedRef.current >= TICK_INTERVAL_MS) {
-        tick(elapsedRef.current / 1000)
-        elapsedRef.current = 0
-      }
-
-      frameRef.current = window.requestAnimationFrame(loop)
+      tick(delta / 1000)
     }
 
-    frameRef.current = window.requestAnimationFrame(loop)
+    const intervalId = window.setInterval(runTick, TICK_INTERVAL_MS)
+    runTick()
 
     return () => {
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current)
-      }
+      window.clearInterval(intervalId)
     }
   }, [tick])
 }
