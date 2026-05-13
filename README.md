@@ -54,7 +54,8 @@ Principais responsabilidades:
 - `src/game/engine/progress.ts`: aplicacao de producao nas metricas e historico.
 - `src/game/formulas`: formulas de upgrades, OEE, qualidade e ritmo.
 - `src/game/persistence/storage.ts`: leitura/escrita do save local com checksum.
-- `src/game/antiCheat/limits.ts`: limites, sanitizacao e validacao de integridade.
+- `src/game/persistence/integrity.ts`: envelope e checksum do save local.
+- `src/game/limits.ts`: clamps de gameplay usados pelo loop local.
 - `src/hooks/useRankingController.ts`: polling, autosave e feedback do ranking.
 - `src/services/leaderboardService.ts`: chamadas HTTP do ranking.
 
@@ -81,17 +82,14 @@ O save local nao e gravado como estado puro. Ele usa um envelope:
 Estrategia usada:
 
 - JSON invalido: o save e removido e o jogo inicia do zero.
-- Formato invalido: o save e removido e o jogo inicia do zero.
+- Formato basico invalido: o save e removido e o jogo inicia do zero.
 - Checksum quebrado: o save e removido e o jogo inicia do zero.
-- Inconsistencia detectavel: o save e removido e o jogo inicia do zero.
-
-As inconsistencias verificadas incluem numeros negativos ou infinitos, `savedAt` muito no futuro, upgrades fora do nivel permitido, total de upgrades diferente da soma dos niveis, pecas boas + defeituosas diferente do total, pontos maiores que pontos vitalicios, historico invalido e metricas fora dos limites aceitos.
 
 Quando isso acontece, a UI exibe um aviso claro ao jogador informando que o save local foi reiniciado.
 
 O app valida o save ao carregar, antes de autosalvar e tambem durante a execucao. Isso evita que uma edicao manual feita pelo DevTools seja sobrescrita por um autosave valido antes de ser detectada.
 
-Justificativa: checksum no client nao e seguranca forte, porque o codigo fica disponivel no navegador. Ele serve para detectar corrupcao e edicoes manuais simples no `localStorage`. A protecao real do ranking continua dependendo da validacao da API, enquanto o frontend evita restaurar um estado local obviamente adulterado.
+Justificativa: o frontend nao tenta validar tempo, pontos ou plausibilidade do ranking. Isso fica no backend. No client, o checksum serve apenas para detectar corrupcao e edicoes manuais simples no `localStorage`, protegendo a experiencia local de restaurar um save adulterado.
 
 ## Polling e cache
 
