@@ -20,7 +20,7 @@ function level(upgrades: UpgradeLevels, id: keyof UpgradeLevels): number {
   return upgrades[id].level
 }
 
-export function getDefectRate(upgrades: UpgradeLevels): number {
+function getDefectRate(upgrades: UpgradeLevels): number {
   const defectRate =
     BASE_DEFECT_RATE *
     Math.pow(0.95, level(upgrades, 'fiveS')) *
@@ -31,7 +31,7 @@ export function getDefectRate(upgrades: UpgradeLevels): number {
   return clampRate(defectRate)
 }
 
-export function getRawProductionPerSecond(
+function getRawProductionPerSecond(
   upgrades: UpgradeLevels,
   defectRate: number,
 ): number {
@@ -48,7 +48,7 @@ export function getRawProductionPerSecond(
   )
 }
 
-export function getAvailability(upgrades: UpgradeLevels): number {
+function getAvailability(upgrades: UpgradeLevels): number {
   const downtimePenalty =
     BASE_DOWNTIME_PENALTY * Math.pow(0.65, level(upgrades, 'andon'))
   const maintenanceBoost = 1 + level(upgrades, 'tpm') * 0.15
@@ -56,11 +56,11 @@ export function getAvailability(upgrades: UpgradeLevels): number {
   return clampRate((BASE_MAX_AVAILABILITY - downtimePenalty) * maintenanceBoost)
 }
 
-export function getFluctuationPenalty(upgrades: UpgradeLevels): number {
+function getFluctuationPenalty(upgrades: UpgradeLevels): number {
   return BASE_FLUCTUATION_PENALTY * Math.max(0, 1 - level(upgrades, 'heijunka') * 0.18)
 }
 
-export function getPerformance(upgrades: UpgradeLevels): number {
+function getPerformance(upgrades: UpgradeLevels): number {
   const leveledFlowBoost = 1 + level(upgrades, 'heijunka') * 0.25
   const fluctuationPenalty = getFluctuationPenalty(upgrades)
 
@@ -71,7 +71,7 @@ export function getPerformance(upgrades: UpgradeLevels): number {
   )
 }
 
-export function getOee(
+function getOee(
   availability: number,
   performance: number,
   quality: number,

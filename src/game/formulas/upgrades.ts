@@ -1,7 +1,6 @@
-import type { UpgradeDefinition, UpgradeLevels } from '../../types/game'
+import type { UpgradeDefinition } from '../../types/game'
 
-export const UPGRADE_COST_MULTIPLIER = 1.5
-export const MAX_UPGRADE_LEVEL = 5
+const UPGRADE_COST_MULTIPLIER = 1.5
 
 export function getUpgradeCost(
   definition: UpgradeDefinition,
@@ -27,9 +26,3 @@ export function canPurchaseUpgrade(
   )
 }
 
-export function getUpgradeLevel(
-  upgrades: UpgradeLevels,
-  definition: UpgradeDefinition,
-): number {
-  return upgrades[definition.id].level
-}
