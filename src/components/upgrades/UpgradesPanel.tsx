@@ -10,11 +10,11 @@ export function UpgradesPanel() {
 
   return (
     <Panel
-      className="flex h-full min-h-0 flex-col p-3 sm:p-4"
+      className="flex flex-col p-3 sm:p-4 lg:h-full lg:min-h-0"
       eyebrow="Módulos"
       title="Melhorias"
     >
-      <div className="grid min-h-0 flex-1 auto-rows-max content-start gap-2 overflow-y-auto pr-1">
+      <div className="grid auto-rows-max gap-2 sm:grid-cols-2 lg:min-h-0 lg:flex-1 lg:grid-cols-1 lg:content-start lg:overflow-y-auto lg:pr-1">
         {upgradeDefinitions.map((definition) => (
           <UpgradeCard
             definition={definition}

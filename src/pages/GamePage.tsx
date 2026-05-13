@@ -14,7 +14,7 @@ export function GamePage() {
       header={<ConnectedHeader />}
       notice={<IntegrityNotice />}
       upgrades={
-        <div className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-3">
+        <div className="grid gap-3 lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto]">
           <UpgradesPanel />
           <RankingPanel />
         </div>
