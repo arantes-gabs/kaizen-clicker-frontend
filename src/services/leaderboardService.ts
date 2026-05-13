@@ -96,16 +96,28 @@ async function readJson(response: Response): Promise<unknown> {
   }
 }
 
+function createRequestHeaders(headers?: HeadersInit): Headers {
+  const requestHeaders = new Headers(headers)
+
+  if (!requestHeaders.has('Content-Type')) {
+    requestHeaders.set('Content-Type', 'application/json')
+  }
+
+  requestHeaders.set('Cache-Control', 'no-cache')
+  requestHeaders.set('Pragma', 'no-cache')
+
+  return requestHeaders
+}
+
 async function requestJson(path: string, init?: RequestInit): Promise<unknown> {
   let response: Response
+  const { cache, headers, ...requestInit } = init ?? {}
 
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...init?.headers,
-      },
-      ...init,
+      ...requestInit,
+      cache: cache ?? 'no-store',
+      headers: createRequestHeaders(headers),
     })
   } catch {
     throw new LeaderboardApiError(
