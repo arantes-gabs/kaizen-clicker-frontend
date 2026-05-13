@@ -1,5 +1,5 @@
 import type { FactoryMetrics } from '../../types/game'
-import { clampProductionPerSecond } from '../antiCheat/limits'
+import { clampProductionPerSecond } from '../limits'
 
 export interface ProductionResult {
   elapsedSeconds: number

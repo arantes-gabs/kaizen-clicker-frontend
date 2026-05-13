@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand'
-import { clampOfflineSeconds, clampPoints } from '../game/antiCheat/limits'
+import { clampOfflineSeconds, clampPoints } from '../game/limits'
 import {
   applyProductionResult,
   maybeAddProductionSample,

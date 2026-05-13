@@ -155,7 +155,7 @@ function getFallbackErrorMessage(
   }
 
   if (status === 422) {
-    return 'Pontuacao recusada pelo anti-cheat.'
+    return 'Pontuacao recusada pela validacao do servidor.'
   }
 
   if (status === 404) {

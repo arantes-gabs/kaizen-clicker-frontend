@@ -1,9 +1,7 @@
 import {
   clampOfflineSeconds,
   clampPoints,
-  sanitizeHistory,
-  sanitizeMetrics,
-} from '../antiCheat/limits'
+} from '../limits'
 import { applyProductionResult } from '../engine/progress'
 import { resolveOfflineProduction } from '../engine/tick'
 import { getFactoryMetrics } from '../formulas/factory'
@@ -80,7 +78,7 @@ export function createInitialGameState(loadedGame: LoadedGame): GameState {
     offlineSeconds > 0
       ? resolveOfflineProduction(factory, offlineSeconds)
       : null
-  const restoredMetrics = sanitizeMetrics(savedGame.metrics)
+  const restoredMetrics = savedGame.metrics
   const metrics = offlineProduction
     ? {
         ...applyProductionResult(restoredMetrics, offlineProduction),
@@ -103,7 +101,7 @@ export function createInitialGameState(loadedGame: LoadedGame): GameState {
     factory,
     upgrades,
     metrics,
-    history: sanitizeHistory(savedGame.history),
+    history: savedGame.history,
     lastSampledAt: Date.now(),
     isPaused: savedGame.isPaused,
     integrityNotice: loadedGame.integrityNotice,
