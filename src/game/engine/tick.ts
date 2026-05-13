@@ -1,8 +1,5 @@
 import type { FactoryMetrics } from '../../types/game'
-import {
-  clampProductionPerSecond,
-  clampTickSeconds,
-} from '../antiCheat/limits'
+import { clampProductionPerSecond } from '../limits'
 
 export interface ProductionResult {
   elapsedSeconds: number
@@ -11,28 +8,6 @@ export interface ProductionResult {
   defectivePieces: number
   downtimeSeconds: number
   pointsGained: number
-}
-
-export function resolveProductionTick(
-  factory: FactoryMetrics,
-  deltaSeconds: number,
-): ProductionResult {
-  const elapsedSeconds = clampTickSeconds(deltaSeconds)
-  const producedPerSecond = clampProductionPerSecond(
-    factory.producedPiecesPerSecond,
-  )
-  const producedPieces = producedPerSecond * elapsedSeconds
-  const goodPieces = producedPieces * factory.quality
-  const defectivePieces = producedPieces * factory.defectRate
-
-  return {
-    elapsedSeconds,
-    producedPieces,
-    goodPieces,
-    defectivePieces,
-    downtimeSeconds: elapsedSeconds * factory.downtimeRate,
-    pointsGained: goodPieces,
-  }
 }
 
 export function resolveOfflineProduction(

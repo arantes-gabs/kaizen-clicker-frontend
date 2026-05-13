@@ -1,73 +1,96 @@
-# React + TypeScript + Vite
+# Kaizen Clicker Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Jogo incremental em React + TypeScript sobre melhoria continua em uma fabrica. O jogador ganha pontos com cliques, producao automatica e upgrades Kaizen. O ranking e enviado para uma API externa configurada por `VITE_API_URL`.
 
-Currently, two official plugins are available:
+## Rodando localmente
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Scripts uteis:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run lint
+npm run build
+npm run preview
 ```
+
+Variavel de ambiente opcional:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+  Player[Jogador] --> UI[React UI]
+  UI --> Hooks[Hooks de tela]
+  Hooks --> Store[Zustand Game Store]
+  Store --> State[Game State Factory]
+  Store --> Actions[Game Actions]
+  Store --> Persistence[Store Persistence]
+  Actions --> Engine[Game Engine]
+  Actions --> Formulas[Formulas Kaizen]
+  State --> Engine
+  State --> Formulas
+  Persistence --> Storage[Save Storage]
+  Storage --> LocalStorage[(localStorage)]
+  Hooks --> Leaderboard[Leaderboard Service]
+  Leaderboard --> API[Backend Scores API]
+```
+
+Principais responsabilidades:
+
+- `src/store/useGameStore.ts`: composicao fina da store Zustand.
+- `src/store/gameActions.ts`: acoes do jogo, como clique, compra, pause e tick.
+- `src/store/gameStorePersistence.ts`: autosave, flush em unload e watcher de integridade.
+- `src/store/gameStoreTypes.ts`: contrato de estado e acoes da store.
+- `src/game/state/gameState.ts`: estado inicial, restore offline e serializacao.
+- `src/game/engine/tick.ts`: calculo de producao por tempo decorrido.
+- `src/game/engine/progress.ts`: aplicacao de producao nas metricas e historico.
+- `src/game/formulas`: formulas de upgrades, OEE, qualidade e ritmo.
+- `src/game/persistence/storage.ts`: leitura/escrita do save local com checksum.
+- `src/game/persistence/integrity.ts`: envelope e checksum do save local.
+- `src/game/limits.ts`: clamps de gameplay usados pelo loop local.
+- `src/hooks/useRankingController.ts`: polling, autosave e feedback do ranking.
+- `src/services/leaderboardService.ts`: chamadas HTTP do ranking.
+
+## Regra 2: background e offline ate 8h
+
+O jogo salva o estado em `localStorage` e registra `savedAt` a cada autosave. Ao carregar a pagina, a store calcula quanto tempo passou desde o ultimo save e aplica a producao offline.
+
+O limite maximo e `8 * 60 * 60` segundos. Qualquer periodo maior que 8h e truncado antes de gerar pontos.
+
+Tambem foi ajustado o loop em aba aberta: quando o navegador reduz ou suspende timers em background, o proximo tick usa o tempo real decorrido, limitado pelas mesmas 8h. Assim a aba em background continua produzindo sem multiplicar ganhos acima do teto definido.
+
+## Regra 7: deteccao de tampering no client
+
+O save local nao e gravado como estado puro. Ele usa um envelope:
+
+```ts
+{
+  version: 2,
+  state: PersistedGameState,
+  checksum: string
+}
+```
+
+Estrategia usada:
+
+- JSON invalido: o save e removido e o jogo inicia do zero.
+- Formato basico invalido: o save e removido e o jogo inicia do zero.
+- Checksum quebrado: o save e removido e o jogo inicia do zero.
+
+Quando isso acontece, a UI exibe um aviso claro ao jogador informando que o save local foi reiniciado.
+
+O app valida o save ao carregar, antes de autosalvar e tambem durante a execucao. Isso evita que uma edicao manual feita pelo DevTools seja sobrescrita por um autosave valido antes de ser detectada.
+
+Justificativa: o frontend nao tenta validar tempo, pontos ou plausibilidade do ranking. Isso fica no backend. No client, o checksum serve apenas para detectar corrupcao e edicoes manuais simples no `localStorage`, protegendo a experiencia local de restaurar um save adulterado.
+
+## Polling e cache
+
+O ranking faz polling a cada 5s. As chamadas HTTP usam `cache: 'no-store'` e headers `Cache-Control: no-cache` / `Pragma: no-cache`, evitando que o browser reaproveite respostas antigas durante o polling.
