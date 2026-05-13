@@ -74,7 +74,7 @@ export function FactoryStage({
 
   return (
     <Card
-      className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-3 sm:p-4"
+      className="relative grid overflow-hidden p-3 sm:p-4 lg:h-full lg:min-h-0 lg:grid-rows-[auto_minmax(0,1fr)]"
       tone="highlight"
     >
       <div className="factory-sparkles pointer-events-none absolute inset-0" />
@@ -84,7 +84,7 @@ export function FactoryStage({
           <p className="text-[0.68rem] font-black uppercase text-amber-500">
             Chão da fábrica
           </p>
-          <h2 className="font-display text-3xl font-black leading-none text-slate-950 sm:text-4xl">
+          <h2 className="font-display text-2xl font-black leading-none text-slate-950 sm:text-4xl">
             Melhore sempre
           </h2>
         </div>
@@ -100,25 +100,27 @@ export function FactoryStage({
         </div>
       </div>
 
-      <div className="relative z-10 grid min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
-        <ConveyorBelt
-          defectRate={factory.defectRate}
-          productionPulse={Math.floor(metrics.totalPieces)}
-          purchasePulse={purchasePulse}
-        />
+      <div className="relative z-10 grid gap-3 lg:min-h-0 lg:grid-rows-[auto_minmax(0,1fr)]">
+        <div>
+          <ConveyorBelt
+            defectRate={factory.defectRate}
+            productionPulse={Math.floor(metrics.totalPieces)}
+            purchasePulse={purchasePulse}
+          />
+        </div>
 
-        <div className="relative grid min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-[1.75rem] border-2 border-white bg-white/55 p-3 shadow-inner">
+        <div className="relative grid gap-3 overflow-hidden rounded-[1.75rem] border-2 border-white bg-white/55 p-3 shadow-inner lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(52,211,153,0.18),transparent_32%),radial-gradient(circle_at_18%_80%,rgba(251,191,36,0.13),transparent_24%),radial-gradient(circle_at_86%_18%,rgba(52,211,153,0.12),transparent_24%)]" />
 
-          <div className="relative z-10 grid min-h-0 place-items-center">
+          <div className="relative z-10 grid place-items-center lg:min-h-0">
             <div className="grid place-items-center">
               <div
-                className="mb-2 rounded-[1.35rem] border-2 border-amber-100 bg-white/92 px-5 py-2 text-center shadow-[0_5px_0_rgba(251,191,36,0.18),0_12px_22px_rgba(15,23,42,0.06)]"
+                className="mb-2 rounded-[1.35rem] border-2 border-amber-100 bg-white/92 px-4 py-1.5 text-center shadow-[0_5px_0_rgba(251,191,36,0.18),0_12px_22px_rgba(15,23,42,0.06)] sm:px-5 sm:py-2"
               >
                 <p className="text-[0.68rem] font-black uppercase text-slate-400">
                   Pontuação atual
                 </p>
-                <p className="font-display text-4xl font-black leading-none text-slate-950">
+                <p className="font-display text-3xl font-black leading-none text-slate-950 sm:text-4xl">
                   {formatNumber(points)} pontos
                 </p>
               </div>

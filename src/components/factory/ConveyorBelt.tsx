@@ -22,10 +22,39 @@ export const ConveyorBelt = memo(function ConveyorBelt({
   productionPulse,
   purchasePulse,
 }: ConveyorBeltProps) {
+  const beltRef = useRef<HTMLDivElement | null>(null)
   const [pieces, setPieces] = useState<ConveyorPiece[]>([])
+  const [pieceTravelX, setPieceTravelX] = useState(900)
   const previousPulseRef = useRef(productionPulse)
   const sequenceRef = useRef(0)
   const defectAccumulatorRef = useRef(0)
+
+  useEffect(() => {
+    const belt = beltRef.current
+
+    if (!belt) {
+      return
+    }
+
+    function updateTravelDistance(): void {
+      const currentBelt = beltRef.current
+
+      if (!currentBelt) {
+        return
+      }
+
+      setPieceTravelX(currentBelt.offsetWidth + 120)
+    }
+
+    updateTravelDistance()
+
+    const resizeObserver = new ResizeObserver(updateTravelDistance)
+    resizeObserver.observe(belt)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
 
   useEffect(() => {
     const producedPieces = Math.max(0, productionPulse - previousPulseRef.current)
@@ -65,7 +94,7 @@ export const ConveyorBelt = memo(function ConveyorBelt({
   }, [defectRate, productionPulse])
 
   return (
-    <div className="relative h-40 shrink-0 overflow-hidden rounded-[1.75rem] border-2 border-white bg-[#ECEFF3] shadow-inner sm:h-44">
+    <div className="relative h-32 shrink-0 overflow-hidden rounded-[1.75rem] border-2 border-white bg-[#ECEFF3] shadow-inner sm:h-44">
       <div className="industrial-grid absolute inset-0 opacity-60" />
 
       <AnimatePresence mode="popLayout">
@@ -112,7 +141,10 @@ export const ConveyorBelt = memo(function ConveyorBelt({
         <div className="mx-auto mt-2 h-2.5 w-16 rounded-full bg-amber-300" />
       </motion.div>
 
-      <div className="conveyor-belt absolute inset-x-3 bottom-7 h-16 rounded-[1.35rem] border-2 border-slate-300 sm:inset-x-5">
+      <div
+        className="conveyor-belt absolute inset-x-3 bottom-7 h-16 rounded-[1.35rem] border-2 border-slate-300 sm:inset-x-5"
+        ref={beltRef}
+      >
         <AnimatePresence>
           {pieces.map((piece) => (
             <motion.div
@@ -126,7 +158,7 @@ export const ConveyorBelt = memo(function ConveyorBelt({
               initial={{ opacity: 0, x: -72, y: 12 + piece.laneOffset, scale: 0.88 }}
               animate={{
                 opacity: 1,
-                x: ['-72px', '820px'],
+                x: ['-72px', `${pieceTravelX}px`],
                 y: 12 + piece.laneOffset,
                 rotate: piece.type === 'defect' ? [-5, 4, -3] : [-2, 1, -1],
               }}
